@@ -1,0 +1,105 @@
+@startuml
+title Cat Coin Rush — Diagrama de Clases (Conceptual)
+
+skinparam classAttributeIconSize 0
+
+class Player {
+  +position: Vector2
+  +velocity: Vector2
+  +speed: float
+  +jump_velocity: float
+  +gravity: float
+  +is_on_floor: bool
+  +sprite: Sprite2D
+  +animation_player: AnimationPlayer
+  +move(direction: float): void
+  +jump(): void
+  +apply_gravity(delta: float): void
+  +update_animation(): void
+  +_physics_process(delta: float): void
+}
+
+class Coin {
+  +id: int
+  +position: Vector2
+  +sprite: Sprite2D
+  +collision_area: Area2D
+  +_on_body_entered(body: Node2D): void
+  +collect(): void
+}
+
+class UI {
+  +coins_collected: int
+  +coins_required: int
+  +coin_label: Label
+  +menu_victoria: Panel
+  +update_counter(): void
+  +show_victory_menu(): void
+  +_on_coin_collected(): void
+}
+
+class UI_Time {
+  +time: float
+  +time_label: Label
+  +update_display(delta: float): void
+  +check_timeout(): void
+  +_process(delta: float): void
+}
+
+class MenuVictoria {
+  +btn_reintentar: Button
+  +btn_salir: Button
+  +show_menu(): void
+  +_on_reintentar_pressed(): void
+  +_on_salir_pressed(): void
+}
+
+class ZonaCaida {
+  +collision_area: Area2D
+  +_on_body_entered(body: Node2D): void
+  +reiniciar_nivel(): void
+}
+
+class Map {
+  +player: Player
+  +coins: Array[Coin]
+  +platforms: TileMap
+  +zona_caida: ZonaCaida
+  +ui: CanvasLayer
+  +_ready(): void
+}
+
+' Relaciones
+Map "1" *-- "1" Player : contiene
+Map "1" *-- "6..*" Coin : contiene
+Map "1" *-- "1" UI : contiene
+Map "1" *-- "1" UI_Time : contiene
+Map "1" *-- "1" ZonaCaida : contiene
+UI "1" *-- "1" MenuVictoria : contiene
+
+Player ..> Coin : colisiona
+Coin ..> UI : emite señal (coin_collected)
+UI ..> MenuVictoria : muestra al ganar
+UI_Time ..> Map : reinicia al timeout
+ZonaCaida ..> Map : reinicia al caer
+
+note right of Player
+  CharacterBody2D
+  FSM implícita:
+  IDLE, RUNNING,
+  JUMPING, FALLING
+end note
+
+note right of Coin
+  Area2D
+  Emite señal al
+  detectar colisión
+end note
+
+note bottom of UI
+  Escucha señal
+  coin_collected
+  Verifica victoria
+end note
+
+@enduml

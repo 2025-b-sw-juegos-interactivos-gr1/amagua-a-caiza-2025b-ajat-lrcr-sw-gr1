@@ -1,0 +1,50 @@
+@startuml
+title Cat Coin Rush — Máquina de Estados del Jugador (FSM)
+
+[*] --> IDLE : Jugador spawned
+
+IDLE --> RUNNING : Input horizontal detectado
+IDLE --> JUMPING : Presiona Espacio\n(en suelo)
+
+RUNNING --> IDLE : Input horizontal = 0
+RUNNING --> JUMPING : Presiona Espacio\n(en suelo)
+
+JUMPING --> FALLING : Velocidad vertical > 0\n(inicio de caída)
+
+FALLING --> IDLE : Contacto con suelo\n+ velocity.x == 0
+FALLING --> RUNNING : Contacto con suelo\n+ velocity.x != 0
+
+IDLE : Animación: "idle"
+IDLE : velocity.x = 0
+IDLE : En suelo
+
+RUNNING : Animación: "run"
+RUNNING : velocity.x != 0
+RUNNING : En suelo
+RUNNING : Flip sprite según dirección
+
+JUMPING : Animación: "jump"
+JUMPING : velocity.y < 0
+JUMPING : En el aire (subiendo)
+
+FALLING : Animación: "fall"
+FALLING : velocity.y > 0
+FALLING : En el aire (bajando)
+
+note right of JUMPING
+  Aplicar impulso vertical:
+  velocity.y = jump_velocity
+end note
+
+note right of FALLING
+  Aplicar gravedad:
+  velocity.y += gravity * delta
+end note
+
+note bottom of IDLE
+  Todas las transiciones
+  se evalúan cada frame
+  en _physics_process()
+end note
+
+@enduml

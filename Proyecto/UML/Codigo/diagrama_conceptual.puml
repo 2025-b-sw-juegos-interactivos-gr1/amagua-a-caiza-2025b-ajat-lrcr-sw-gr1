@@ -1,0 +1,68 @@
+@startuml
+title Cat Coin Rush — Diagrama Conceptual (Arquitectura)
+
+package "Escena Principal (Map)" {
+  [Player\nCharacterBody2D] as Player
+  [Coins (x6)\nArea2D] as Coins
+  [Plataformas\nStaticBody2D] as Platforms
+  [ZonaCaida\nArea2D] as ZonaCaida
+}
+
+package "UI Layer (CanvasLayer)" {
+  [HUD\n(Contador + Cronómetro)] as HUD
+  [MenuVictoria\nPanel] as Menu
+}
+
+package "Scripts de Lógica" {
+  [PlayerMov.gd] as ScriptPlayer
+  [Coin2D.gd] as ScriptCoin
+  [UI.gd] as ScriptUI
+  [UI_Time.gd] as ScriptTime
+  [menu_victoria.gd] as ScriptMenu
+}
+
+' Relaciones de contención
+Player --> ScriptPlayer : ejecuta
+Coins --> ScriptCoin : ejecuta
+HUD --> ScriptUI : ejecuta
+HUD --> ScriptTime : ejecuta
+Menu --> ScriptMenu : ejecuta
+
+' Flujo de comunicación
+Player --> Coins : colisión física
+Coins ..> ScriptUI : señal:\ncoin_collected
+ScriptTime ..> Player : reinicia\nal timeout
+ZonaCaida ..> Player : reinicia\nal caer fuera
+ScriptUI ..> Menu : muestra\nal ganar
+
+' Colisiones con el mundo
+Player --> Platforms : colisión física\n(move_and_slide)
+Player --> ZonaCaida : trigger\n(caída)
+
+note right of Coins
+  Emite señal cuando
+  el jugador colisiona
+  Luego se autodestruye
+end note
+
+note bottom of ScriptUI
+  Escucha coin_collected
+  Incrementa contador
+  Si contador == 6:
+    muestra MenuVictoria
+end note
+
+note left of ScriptTime
+  Decrementa tiempo
+  Si tiempo == 0:
+    get_tree().reload()
+end note
+
+legend right
+  Líneas sólidas = Relación directa
+  Líneas punteadas = Señales/Eventos
+  Cuadros = Nodos de Godot
+  Círculos = Scripts GDScript
+endlegend
+
+@enduml

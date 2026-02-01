@@ -1,0 +1,56 @@
+@startuml
+title Cat Coin Rush — Diagrama de Casos de Uso
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Jugador" as J
+
+rectangle "Sistema del Juego" {
+
+  package "Movimiento" {
+    usecase "Mover horizontalmente" as UC_Mover
+    usecase "Saltar" as UC_Saltar
+    usecase "Aterrizar" as UC_Aterrizar
+  }
+
+  package "Recolección" {
+    usecase "Recolectar moneda" as UC_Recolectar
+    usecase "Ver contador de monedas" as UC_VerContador
+    usecase "Alcanzar objetivo (6 monedas)" as UC_Victoria
+  }
+
+  package "Gestión de Tiempo" {
+    usecase "Ver cronómetro" as UC_VerTiempo
+    usecase "Perder por tiempo agotado" as UC_Derrota
+  }
+
+  package "Menús" {
+    usecase "Reiniciar nivel" as UC_Reiniciar
+    usecase "Salir del juego" as UC_Salir
+    usecase "Ver menú de victoria" as UC_MenuVictoria
+  }
+}
+
+' Asociaciones directas
+J --> UC_Mover
+J --> UC_Saltar
+J --> UC_Recolectar
+J --> UC_VerContador
+J --> UC_VerTiempo
+J --> UC_Reiniciar
+J --> UC_Salir
+
+' Relaciones include/extend
+UC_Mover ..> UC_Aterrizar : <<extend>>
+UC_Saltar ..> UC_Aterrizar : <<include>>
+
+UC_Recolectar ..> UC_VerContador : <<include>>
+UC_Recolectar ..> UC_Victoria : <<extend>>
+
+UC_VerTiempo ..> UC_Derrota : <<extend>>
+
+UC_Victoria ..> UC_MenuVictoria : <<include>>
+UC_Derrota ..> UC_Reiniciar : <<include>>
+
+@enduml
